@@ -3751,6 +3751,10 @@ do-configure:
 	    ${CONFIGURE_ENV} ./${CONFIGURE_SCRIPT} ${CONFIGURE_ARGS}; then \
 			 ${ECHO_MSG} "===>  Script \"${CONFIGURE_SCRIPT}\" failed unexpectedly."; \
 			 (${ECHO_CMD} ${CONFIGURE_FAIL_MESSAGE}) | ${FMT} 75 79 ; \
+			 if [ -n "${GNU_CONFIGURE}" -a -n "${BATCH}" -a -e ${CONFIGURE_WRKSRC}/config.log ]; then \
+					 ${ECHO_MSG} "===>  config.log follows"; \
+					 ${CAT} ${WRKSRC}/config.log; \
+			 fi; \
 			 ${FALSE}; \
 		fi)
 .endif
