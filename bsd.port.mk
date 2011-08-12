@@ -2279,9 +2279,11 @@ PTHREAD_LIBS?=		-pthread
 .	if !exists(${SRC_BASE}/sys/sys/param.h)
 IGNORE=		requires system sources installed
 .	endif
+.	if !defined(DISABLE_SRC_VERSION_CHECK)
 SRCVERSION!=	${AWK} '/^\#define[[:blank:]]__FreeBSD_version/ {print $$3}' < ${SRC_BASE}/sys/sys/param.h
-.	if !defined(DISABLE_SRC_VERSION_CHECK) && ${SRCVERSION} != ${OSVERSION}
+.		if ${SRCVERSION} != ${OSVERSION}
 IGNORE=		the version of system sources at ${SRC_BASE} doesn't match with your system version
+.		endif
 .	endif
 .endif
 
