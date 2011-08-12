@@ -609,6 +609,10 @@ FreeBSD_MAINTAINER=	portmgr@FreeBSD.org
 # 				  Note that files have decreasing priority.
 # GID_FILES		- A list of files containing information about registered GIDs.
 # 				  Note that files have decreasing priority.
+# LOCALPATCHDIR	- An optional directory for storing local patches. If you have
+#				  any, just define LOCALPATCHDIR and all files under
+#				  ${LOCALPATCHDIR}/${CATEGORY}/${PORT} will be applied after
+#				  system patches.
 #
 # Variables that serve as convenient "aliases" for your *-install targets.
 # Use these like: "${INSTALL_PROGRAM} ${WRKSRC}/prog ${PREFIX}/bin".
@@ -1379,6 +1383,10 @@ PATCHDIR?=		${MASTERDIR}/files
 FILESDIR?=		${MASTERDIR}/files
 SCRIPTDIR?=		${MASTERDIR}/scripts
 PKGDIR?=		${MASTERDIR}
+
+.if defined(LOCALPATCHDIR)
+PATCHDIR_LOCAL?=		${LOCALPATCHDIR}/${.CURDIR:C/^.*\/([^\/]+\/[^\/]+)$/\\1/}
+.endif
 
 .if defined(USE_LINUX_PREFIX)
 PREFIX?=		${LINUXBASE}
@@ -3685,6 +3693,35 @@ do-patch:
 			done; \
 		fi; \
 	fi
+.if defined(PATCHDIR_LOCAL)
+	@if [ -d ${PATCHDIR_LOCAL} ]; then \
+		if [ "`${ECHO_CMD} ${PATCHDIR_LOCAL}/patch-*`" != "${PATCHDIR_LOCAL}/patch-*" ]; then \
+			${ECHO_MSG} "===>  Applying local patches for ${PKGNAME}" ; \
+			PATCHES_APPLIED="" ; \
+			for i in ${PATCHDIR_LOCAL}/patch-*; do \
+				case $$i in \
+					*.orig|*.rej|*~|*,v) \
+						${ECHO_MSG} "===>   Ignoring patchfile $$i" ; \
+						;; \
+					*) \
+						if [ ${PATCH_DEBUG_TMP} = yes ]; then \
+							${ECHO_MSG} "===>   Applying local patch $$i" ; \
+						fi; \
+						if ${PATCH} ${PATCH_ARGS} < $$i ; then \
+							PATCHES_APPLIED="$$PATCHES_APPLIED $$i" ; \
+						else \
+							${ECHO_MSG} `${ECHO_CMD} "=> Local patch $$i failed to apply cleanly." | ${SED} "s|${PATCHDIR_LOCAL}/||"` ; \
+							if [ x"$$PATCHES_APPLIED" != x"" ]; then \
+								${ECHO_MSG} `${ECHO_CMD} "=> Local patch(es) $$PATCHES_APPLIED applied cleanly." | ${SED} "s|${PATCHDIR_LOCAL}/||g"` ; \
+							fi; \
+							${FALSE} ; \
+						fi; \
+						;; \
+				esac; \
+			done; \
+		fi; \
+	fi
+.endif
 .endif
 
 .if !target(run-autotools-fixup)
