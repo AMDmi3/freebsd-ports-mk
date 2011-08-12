@@ -2249,6 +2249,16 @@ BUILD_FAIL_MESSAGE+=	"You have chosen to use multiple make jobs (parallelization
 .endif
 .endif
 
+# stack protector support
+#.if !defined(STACK_PROTECTOR_UNSAFE) && !defined(DISABLE_STACK_PROTECTOR) && (defined(FORCE_STACK_PROTECTOR) || defined(STACK_PROTECTOR_SAFE))	    # enabled by default, disable with DISABLE_STACK_PROTECTOR
+.if !defined(STACK_PROTECTOR_UNSAFE) && (defined(FORCE_STACK_PROTECTOR) || (defined(ENABLE_STACK_PROTECTOR) && defined(STACK_PROTECTOR_SAFE)))		# disabled by default, enable with ENABLE_STACK_PROTECTOR
+CFLAGS+=	-fstack-protector
+CXXFLAGS+=	-fstack-protector
+.if defined(FORCE_STACK_PROTECTOR) && !defined(STACK_PROTECTOR_SAFE)
+BUILD_FAIL_MESSAGE+=	"You have chosen to use stack protector for all ports.  This port was not tested for this setting.  Please remove FORCE_STACK_PROTECTOR and retry the build before reporting the failure to the maintainer."
+.endif
+.endif
+
 # ccache support
 # Support NO_CCACHE for common setups, require WITH_CCACHE_BUILD, and
 # don't use if ccache already set in CC
