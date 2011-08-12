@@ -1,0 +1,50 @@
+This is a collection of patches for ports/Mk directory of FreeBSD
+portstree, which I for some reason don't feel like submitting because
+they are unfinished or are just concepts.
+
+Each patch is stored in a separate branch, and (WARNING!) those
+branches will be rebased onto upstream to avoid history pollution
+with merge commits, so be careful if you clone/fork this repo.
+
+Patches currently include:
+
+  cmake-no-extra-flags
+    prevents CMake from adding extra C/CXX flags when building
+    ports. We set CMAKE_BUILD_TYPE to either release and debug
+    based on WITH_DEBUG (and even if we don't do some software
+    force build type), and thus cmake adds "-O3 -DNDEBUG" or
+    "-O0 -g" acordingly. Ports/build systems should not tamper
+    with system compiler flags, however in this case it's not
+    a big problem so I doubt the patch is needed
+
+  install-as-user
+    when INSTALL_AS_USER is defined, places PORTS_DBDIR and PKG_DBDIR
+    in user's home (~/.ports, ~/.pkgdb), allowing user to use
+    ports system to the full extent without root privileges
+
+  local-patchdir
+    allows user to specify local directory with custom patches which
+    are applied after patches from ${PORTDIR}/files. This is hacky
+    and unsafe, as patches may break when the port is updated
+
+  show-configlog
+    if configure fails, displays its config.log, which is very useful
+    for debugging build failures. Whether to display config.log is
+    based on whether BATCH is set, and I doubt it's the best solution
+    (is there another varible which is set on pointyhat/in tinderbox?
+    or should we use e.g. VERBOSE_BUILD which is set there and which
+    also turns on VERBOSE more for cmake)
+
+  src_base
+    convenient way to show that the port uses system/kernel sources
+    (/usr/src). Checks whether source is present, allows to not hardcode
+    /usr/src and also compares source version with version of running
+    system (that is, not to accidentally build a module for another
+    kernel version)
+
+  stack-protector
+    allows to add -fstack-protector to compiler flags, optionally
+    in a manner similar to MAKE_JOBS
+
+Some of these have been rotting in my CVS checkout since 2008, so may
+be outdated or already (partially) implemented.
