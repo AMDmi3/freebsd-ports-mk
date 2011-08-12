@@ -329,6 +329,14 @@ FreeBSD_MAINTAINER=	portmgr@FreeBSD.org
 #					'yes'		as a library dependency
 #					'run'		as a run-time dependency
 ##
+# USE_SRC       - If set, this port requires system sources installed
+# SRC_BASE      - Set to path to system sources.
+#                 Default: /usr/src
+# DISABLE_SRC_VERSION_CHECK
+#               - Set by user to disable check for that sources and
+#                 system version match (use on your own risk).
+#                 Default: not set
+##
 # USE_GHOSTSCRIPT
 #				- If set, this port needs ghostscript to both
 #				  build and run.  If a number is specified,
@@ -1200,6 +1208,8 @@ OPSYS!=	${UNAME} -s
 .if !defined(OSREL)
 OSREL!=	${UNAME} -r | ${SED} -e 's/[-(].*//'
 .endif
+
+SRC_BASE?=	/usr/src
 
 # Get __FreeBSD_version
 .if !defined(OSVERSION)
@@ -2264,6 +2274,16 @@ MAKE_ENV+=	PATH=${LOCALBASE}/libexec/ccache:${PATH}
 
 PTHREAD_CFLAGS?=
 PTHREAD_LIBS?=		-pthread
+
+.if defined(USE_SRC)
+.	if !exists(${SRC_BASE}/sys/sys/param.h)
+IGNORE=		requires system sources installed
+.	endif
+SRCVERSION!=	${AWK} '/^\#define[[:blank:]]__FreeBSD_version/ {print $$3}' < ${SRC_BASE}/sys/sys/param.h
+.	if !defined(DISABLE_SRC_VERSION_CHECK) && ${SRCVERSION} != ${OSVERSION}
+IGNORE=		the version of system sources at ${SRC_BASE} doesn't match with your system version
+.	endif
+.endif
 
 FETCH_BINARY?=	/usr/bin/fetch
 FETCH_ARGS?=	-AFpr
