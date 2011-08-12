@@ -1263,7 +1263,12 @@ USE_SUBMAKE=	yes
 .endif
 
 # where 'make config' records user configuration options
+.if !defined(INSTALL_AS_USER)
 PORT_DBDIR?=	/var/db/ports
+.elif !defined(PORT_DBDIR)
+PORT_DBDIR!=	${PW} showuser ${UID} | ${CUT} -f 9 -d :
+PORT_DBDIR:=	${PORT_DBDIR}/.ports
+.endif
 
 UID_FILES?=	${PORTSDIR}/UIDs
 GID_FILES?=	${PORTSDIR}/GIDs
@@ -2465,7 +2470,12 @@ PKG_SUFX?=		.tbz
 .endif
 .endif
 # where pkg_add records its dirty deeds.
+.if !defined(INSTALL_AS_USER)
 PKG_DBDIR?=		/var/db/pkg
+.elif !defined(PKG_DBDIR)
+PKG_DBDIR!=		${PW} showuser ${UID} | ${CUT} -f 9 -d :
+PKG_DBDIR:=		${PORT_DBDIR}/.pkg
+.endif
 
 MOTIFLIB?=	-L${LOCALBASE}/lib -lXm -lXp
 
