@@ -966,6 +966,8 @@ FreeBSD_MAINTAINER=	portmgr@FreeBSD.org
 # PLIST_DIRS	- Directories to be added to packing list
 # PLIST_DIRSTRY	- Directories to be added to packing list and try to remove them.
 # PLIST_FILES	- Files and symbolic links to be added to packing list
+# AUTOPLIST_FILES - Directories to be added to packing list recursively with
+#				  all their contents.
 #
 # PLIST			- Name of the `packing list' file.
 #				  Change this to ${WRKDIR}/PLIST or something if you
@@ -4333,8 +4335,9 @@ _INSTALL_SUSEQ= check-umask install-mtree pre-su-install \
 				install-desktop-entries install-license install-rc-script \
 				post-install post-install-script add-plist-buildinfo \
 				add-plist-info add-plist-docs add-plist-examples \
-				add-plist-data add-plist-post fix-plist-sequence \
-				compress-man install-ldconfig-file fake-pkg security-check
+				add-plist-data add-autoplist-dirs add-plist-post \
+				fix-plist-sequence compress-man install-ldconfig-file \
+				fake-pkg security-check
 _PACKAGE_DEP=	install
 _PACKAGE_SEQ=	package-message pre-package pre-package-script \
 				do-package post-package-script
@@ -5807,6 +5810,22 @@ add-plist-data:
 	@${FIND} -P -d ${PORTDATA:S/^/${DATADIR}\//} -type d 2>/dev/null | \
 		${SED} -ne 's,^${PREFIX}/,@dirrm ,p' >> ${TMPPLIST}
 	@${ECHO_CMD} "@dirrm ${DATADIR:S,^${PREFIX}/,,}" >> ${TMPPLIST}
+.else
+	@${DO_NADA}
+.endif
+.endif
+
+.if !target(add-autoplist-dirs)
+add-autoplist-dirs:
+.if defined(AUTOPLIST_DIRS)
+	@if ${EGREP} -qe '^@cw?d' ${TMPPLIST} && \
+		[ "`${SED} -En -e '/^@cw?d[ 	]*/s,,,p' ${TMPPLIST} | ${TAIL} -n 1`" != "${PREFIX}" ]; then \
+		${ECHO_CMD} "@cwd ${PREFIX}" >> ${TMPPLIST}; \
+	fi
+	@${FIND} -P ${AUTOPLIST_DIRS:S/^/${PREFIX}\//} ! -type d 2>/dev/null | \
+		${SED} -ne 's,^${PREFIX}/,,p' >> ${TMPPLIST}
+	@${FIND} -P -d ${AUTOPLIST_DIRS:S/^/${PREFIX}\//} -type d 2>/dev/null | \
+		${SED} -ne 's,^${PREFIX}/,@dirrm ,p' >> ${TMPPLIST}
 .else
 	@${DO_NADA}
 .endif
