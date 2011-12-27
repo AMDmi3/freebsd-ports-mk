@@ -3448,7 +3448,7 @@ do-fetch:
 		if [ "$$_file" = "$$file" ]; then	\
 			select='';	\
 		else	\
-			select=`${ECHO_CMD} $${_file##*:} | ${SED} -e 's/,/ /g'` ;	\
+			select=`${ECHO_CMD} "$${_file##*:}" | ${SED} -e 's/,/ /g'` ;	\
 		fi;	\
 		force_fetch=false; \
 		filebasename=$${file##*/}; \
