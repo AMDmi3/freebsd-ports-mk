@@ -830,6 +830,8 @@ FreeBSD_MAINTAINER=	portmgr@FreeBSD.org
 #				  Default: none
 # FETCH_REGET	- Times to retry fetching of files on checksum errors.
 #				  Default: 1
+# FETCH_OFLAG   - Fetch flag to specify output file.
+#                 Default: -O for wget, -o for others.
 #
 # For extract:
 #
@@ -2237,19 +2239,26 @@ BUILD_FAIL_MESSAGE+=	"You have chosen to use multiple make jobs (parallelization
 PTHREAD_CFLAGS?=
 PTHREAD_LIBS?=		-pthread
 
-.if exists(/usr/bin/fetch)
+.if defined(FETCH_CMD)
+FETCH_REGET?=	1
+.elif exists(/usr/bin/fetch)
 FETCH_BINARY?=	/usr/bin/fetch
 FETCH_ARGS?=	-AFpr
 FETCH_REGET?=	1
-.if !defined(DISABLE_SIZE)
+.	if !defined(DISABLE_SIZE)
 FETCH_BEFORE_ARGS+=	$${CKSIZE:+-S $$CKSIZE}
-.endif
+.	endif
 .else
 FETCH_BINARY?=	/usr/bin/ftp
 FETCH_ARGS?=	-R
 FETCH_REGET?=	0
 .endif
-FETCH_CMD?=		${FETCH_BINARY} ${FETCH_ARGS}
+
+.if ${FETCH_CMD:M*wget}
+FETCH_OFLAG?=	-O
+.else
+FETCH_OFLAG?=	-o
+.endif
 
 .if defined(RANDOMIZE_MASTER_SITES)
 .if exists(/usr/games/random)
@@ -3487,11 +3496,9 @@ do-fetch:
 			    ${ECHO_MSG} "=> Attempting to fetch $${site}$${file}"; \
 				CKSIZE=`alg=SIZE; ${DISTINFO_DATA}`; \
 				case $${file} in \
-				*/*)	${MKDIR} $${file%/*}; \
-						args="-o $${file} $${site}$${file}";; \
-				*)		args=$${site}$${file};; \
+				*/*)	${MKDIR} $${file%/*};; \
 				esac; \
-				if ${SETENV} ${FETCH_ENV} ${FETCH_CMD} ${FETCH_BEFORE_ARGS} $${args} ${FETCH_AFTER_ARGS}; then \
+				if ${SETENV} ${FETCH_ENV} ${FETCH_CMD} ${FETCH_OFLAG} $${file} ${FETCH_BEFORE_ARGS} $${site}$${file} ${FETCH_AFTER_ARGS}; then \
 					continue 2; \
 				fi; \
 			done; \
@@ -3539,11 +3546,9 @@ do-fetch:
 			    ${ECHO_MSG} "=> Attempting to fetch $${site}$${file}"; \
 				CKSIZE=`alg=SIZE; ${DISTINFO_DATA}`; \
 				case $${file} in \
-				*/*)	${MKDIR} $${file%/*}; \
-						args="-o $${file} $${site}$${file}";; \
-				*)		args=$${site}$${file};; \
+				*/*)	${MKDIR} $${file%/*};; \
 				esac; \
-				if ${SETENV} ${FETCH_ENV} ${FETCH_CMD} ${FETCH_BEFORE_ARGS} $${args} ${FETCH_AFTER_ARGS}; then \
+				if ${SETENV} ${FETCH_ENV} ${FETCH_CMD} ${FETCH_OFLAG} $${file} ${FETCH_BEFORE_ARGS} $${site}$${file} ${FETCH_AFTER_ARGS}; then \
 					continue 2; \
 				fi; \
 			done; \
@@ -4625,11 +4630,7 @@ fetch-list:
 				fi; \
 				DIR=${DIST_SUBDIR};\
 				CKSIZE=`alg=SIZE; ${DISTINFO_DATA}`; \
-				case $${file} in \
-				*/*)	args="-o $${file} $${site}$${file}";; \
-				*)		args=$${site}$${file};; \
-				esac; \
-				${ECHO_CMD} -n ${SETENV} ${FETCH_ENV} ${FETCH_CMD} ${FETCH_BEFORE_ARGS} $${args} "${FETCH_AFTER_ARGS}" '|| ' ; \
+				${ECHO_CMD} -n ${SETENV} ${FETCH_ENV} ${FETCH_CMD} ${FETCH_OFLAG} $${file} ${FETCH_BEFORE_ARGS} $${site}$${file} ${FETCH_AFTER_ARGS} '|| ' ; \
 			done; \
 			${ECHO_CMD} "${ECHO_CMD} $${file} not fetched" ; \
 		fi; \
@@ -4656,11 +4657,7 @@ fetch-list:
 			fi; \
 			for site in `eval $$SORTED_PATCH_SITES_CMD_TMP ${_RANDOMIZE_SITES}`; do \
 				CKSIZE=`alg=SIZE; ${DISTINFO_DATA}`; \
-				case $${file} in \
-				*/*)	args="-o $${file} $${site}$${file}";; \
-				*)		args=$${site}$${file};; \
-				esac; \
-				${ECHO_CMD} -n ${SETENV} ${FETCH_ENV} ${FETCH_CMD} ${FETCH_BEFORE_ARGS} $${args} "${FETCH_AFTER_ARGS}" '|| ' ; \
+				${ECHO_CMD} -n ${SETENV} ${FETCH_ENV} ${FETCH_CMD} ${FETCH_OFLAG} $${file} ${FETCH_BEFORE_ARGS} $${site}$${file} ${FETCH_AFTER_ARGS} '|| ' ; \
 			done; \
 			${ECHO_CMD} "${ECHO_CMD} $${file} not fetched" ; \
 		fi; \
