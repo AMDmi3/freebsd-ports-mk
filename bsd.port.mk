@@ -3434,7 +3434,7 @@ check-vulnerable:
 # set alg to any of SIZE, SHA256 (or any other checksum algorithm):
 DISTINFO_DATA?=	if [ \( -n "${DISABLE_SIZE}" -a -n "${NO_CHECKSUM}" \) -o ! -f "${DISTINFO_FILE}" ]; then exit; fi; \
 	DIR=${DIST_SUBDIR}; ${AWK} -v alg=$$alg -v file="$${DIR:+$$DIR/}$${file}"	\
-		'$$1 == alg && $$2 == "(" file ")" {print $$4}' ${DISTINFO_FILE}
+		'{ prefix=alg " (" file ") = "; if (substr($$0, 0, length(prefix)) == prefix) print $$NF}' ${DISTINFO_FILE}
 
 # Fetch
 
