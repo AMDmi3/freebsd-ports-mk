@@ -22,9 +22,6 @@ Patches currently include:
     in user's home (~/.ports, ~/.pkgdb), allowing user to use
     ports system to the full extent without root privileges
 
-  ldflags
-    add LDFLAGS to MAKE_ARGS/CONFIGURE_ARGS as it was done with CPPFLAGS
-
   local-patchdir
     allows user to specify local directory with custom patches which
     are applied after patches from ${PORTDIR}/files. This is hacky
