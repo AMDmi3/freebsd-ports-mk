@@ -4791,10 +4791,10 @@ makesum: check-checksum-algorithms
 				eval alg_executable=\$$$$alg; \
 				\
 				if [ $$alg_executable != "NO" ]; then \
-					$$alg_executable $$file >> ${DISTINFO_FILE}; \
+					$$alg_executable "$$file" >> ${DISTINFO_FILE}; \
 				fi; \
 			done; \
-			${ECHO_CMD} "SIZE ($$file) = "`${LS} -ALln $$file | ${AWK} '{print $$5}'` >> ${DISTINFO_FILE}; \
+			${ECHO_CMD} "SIZE ($$file) = "`${LS} -ALln "$$file" | ${AWK} '{print $$5}'` >> ${DISTINFO_FILE}; \
 		done \
 	)
 	@for file in ${_IGNOREFILES}; do \
