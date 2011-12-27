@@ -4817,8 +4817,8 @@ checksum: fetch check-checksum-algorithms
 				eval alg_executable=\$$$$alg; \
 				\
 				if [ $$alg_executable != "NO" ]; then \
-					MKSUM=`$$alg_executable < $$file`; \
-					CKSUM=`file=$$_file; ${DISTINFO_DATA}`; \
+					MKSUM=`$$alg_executable < "$$file"`; \
+					CKSUM=`file="$$_file"; ${DISTINFO_DATA}`; \
 				else \
 					ignore="true"; \
 				fi; \
@@ -4871,7 +4871,7 @@ checksum: fetch check-checksum-algorithms
 				eval alg_executable=\$$$$alg; \
 				\
 				if [ $$alg_executable != "NO" ]; then \
-					CKSUM=`file=$$_file; ${DISTINFO_DATA}`; \
+					CKSUM=`file="$$_file"; ${DISTINFO_DATA}`; \
 				else \
 					ignore="true"; \
 				fi; \
