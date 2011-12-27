@@ -3567,7 +3567,7 @@ do-extract:
 	@${RM} -rf ${WRKDIR}
 	@${MKDIR} ${WRKDIR}
 	@for file in ${EXTRACT_ONLY}; do \
-		if ! (cd ${WRKDIR} && ${EXTRACT_CMD} ${EXTRACT_BEFORE_ARGS} ${_DISTDIR}/$$file ${EXTRACT_AFTER_ARGS});\
+		if ! (cd ${WRKDIR} && ${EXTRACT_CMD} ${EXTRACT_BEFORE_ARGS} "${_DISTDIR}/$$file" ${EXTRACT_AFTER_ARGS});\
 		then \
 			exit 1; \
 		fi; \
