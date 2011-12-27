@@ -4560,19 +4560,19 @@ pre-distclean:
 
 .if !target(distclean)
 distclean: pre-distclean clean
-	@cd ${.CURDIR} && ${MAKE} delete-distfiles RESTRICTED_FILES="${_DISTFILES} ${_PATCHFILES}"
+	@cd ${.CURDIR} && ${MAKE} delete-distfiles RESTRICTED_FILES=${_DISTFILES:Q}\ ${_PATCHFILES:Q}
 .endif
 
 .if !target(delete-distfiles)
 delete-distfiles:
 	@${ECHO_MSG} "===>  Deleting distfiles for ${PKGNAME}"
-	@(if [ "X${RESTRICTED_FILES}" != "X" -a -d ${_DISTDIR} ]; then \
+	@(if [ "X${RESTRICTED_FILES:Q}" != "X" -a -d ${_DISTDIR} ]; then \
 		cd ${_DISTDIR}; \
 		for file in ${RESTRICTED_FILES}; do \
-			${RM} -f $${file}; \
+			${RM} -f "$${file}"; \
 			dir=$${file%/*}; \
 			if [ "$${dir}" != "$${file}" ]; then \
-				${RMDIR} -p $${dir} >/dev/null 2>&1 || :; \
+				${RMDIR} -p "$${dir}" >/dev/null 2>&1 || :; \
 			fi; \
 		done; \
 	fi)
@@ -4584,12 +4584,12 @@ delete-distfiles:
 .if !target(delete-distfiles-list)
 delete-distfiles-list:
 	@${ECHO_CMD} "# ${PKGNAME}"
-	@if [ "X${RESTRICTED_FILES}" != "X" ]; then \
+	@if [ "X${RESTRICTED_FILES:Q}" != "X" ]; then \
 		for file in ${RESTRICTED_FILES}; do \
-			${ECHO_CMD} "[ -f ${_DISTDIR}/$$file ] && (${ECHO_CMD} deleting ${_DISTDIR}/$$file; ${RM} -f ${_DISTDIR}/$$file)"; \
+			${ECHO_CMD} "[ -f \"${_DISTDIR}/$$file\" ] && (${ECHO_CMD} deleting ${_DISTDIR}/$$file; ${RM} -f \"${_DISTDIR}/$$file)\""; \
 			dir=$${file%/*}; \
 			if [ "$${dir}" != "$${file}" ]; then \
-				${ECHO_CMD} "(cd ${_DISTDIR} && ${RMDIR} -p $${dir} 2>/dev/null)"; \
+				${ECHO_CMD} "(cd ${_DISTDIR} && ${RMDIR} -p \"$${dir}\" 2>/dev/null)"; \
 			fi; \
 		done; \
 	fi
