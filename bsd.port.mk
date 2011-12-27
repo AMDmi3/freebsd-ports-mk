@@ -3433,7 +3433,7 @@ check-vulnerable:
 
 # set alg to any of SIZE, SHA256 (or any other checksum algorithm):
 DISTINFO_DATA?=	if [ \( -n "${DISABLE_SIZE}" -a -n "${NO_CHECKSUM}" \) -o ! -f "${DISTINFO_FILE}" ]; then exit; fi; \
-	DIR=${DIST_SUBDIR}; ${AWK} -v alg=$$alg -v file=$${DIR:+$$DIR/}$${file}	\
+	DIR=${DIST_SUBDIR}; ${AWK} -v alg=$$alg -v file="$${DIR:+$$DIR/}$${file}"	\
 		'$$1 == alg && $$2 == "(" file ")" {print $$4}' ${DISTINFO_FILE}
 
 # Fetch
@@ -3445,7 +3445,7 @@ do-fetch:
 	${_MASTER_SITES_ENV} ; \
 	for _file in ${DISTFILES}; do \
 		file=$${_file%%:*}; \
-		if [ $$_file = $$file ]; then	\
+		if [ "$$_file" = "$$file" ]; then	\
 			select='';	\
 		else	\
 			select=`${ECHO_CMD} $${_file##*:} | ${SED} -e 's/,/ /g'` ;	\
@@ -3458,8 +3458,8 @@ do-fetch:
 				force_fetch=true; \
 			fi; \
 		done; \
-		if [ ! -f $$file -a ! -f $$filebasename -o "$$force_fetch" = "true" ]; then \
-			if [ -L $$file -o -L $$filebasename ]; then \
+		if [ ! -f "$$file" -a ! -f "$$filebasename" -o "$$force_fetch" = "true" ]; then \
+			if [ -L "$$file" -o -L "$$filebasename" ]; then \
 				${ECHO_MSG} "=> ${_DISTDIR}/$$file is a broken symlink."; \
 				${ECHO_MSG} "=> Perhaps a filesystem (most likely a CD) isn't mounted?"; \
 				${ECHO_MSG} "=> Please correct this problem and try again."; \
@@ -3498,7 +3498,7 @@ do-fetch:
 				case $${file} in \
 				*/*)	${MKDIR} $${file%/*};; \
 				esac; \
-				if ${SETENV} ${FETCH_ENV} ${FETCH_CMD} ${FETCH_OFLAG} $${file} ${FETCH_BEFORE_ARGS} $${site}$${file} ${FETCH_AFTER_ARGS}; then \
+				if ${SETENV} ${FETCH_ENV} ${FETCH_CMD} ${FETCH_OFLAG} "$${file}" ${FETCH_BEFORE_ARGS} "$${site}$${file}" ${FETCH_AFTER_ARGS}; then \
 					continue 2; \
 				fi; \
 			done; \
@@ -3548,7 +3548,7 @@ do-fetch:
 				case $${file} in \
 				*/*)	${MKDIR} $${file%/*};; \
 				esac; \
-				if ${SETENV} ${FETCH_ENV} ${FETCH_CMD} ${FETCH_OFLAG} $${file} ${FETCH_BEFORE_ARGS} $${site}$${file} ${FETCH_AFTER_ARGS}; then \
+				if ${SETENV} ${FETCH_ENV} ${FETCH_CMD} ${FETCH_OFLAG} "$${file}" ${FETCH_BEFORE_ARGS} "$${site}$${file}" ${FETCH_AFTER_ARGS}; then \
 					continue 2; \
 				fi; \
 			done; \
@@ -4630,7 +4630,7 @@ fetch-list:
 				fi; \
 				DIR=${DIST_SUBDIR};\
 				CKSIZE=`alg=SIZE; ${DISTINFO_DATA}`; \
-				${ECHO_CMD} -n ${SETENV} ${FETCH_ENV} ${FETCH_CMD} ${FETCH_OFLAG} $${file} ${FETCH_BEFORE_ARGS} $${site}$${file} ${FETCH_AFTER_ARGS} '|| ' ; \
+				${ECHO_CMD} -n ${SETENV} ${FETCH_ENV} ${FETCH_CMD} ${FETCH_OFLAG} \"$${file}\" ${FETCH_BEFORE_ARGS} \"$${site}$${file}\" ${FETCH_AFTER_ARGS} '|| ' ; \
 			done; \
 			${ECHO_CMD} "${ECHO_CMD} $${file} not fetched" ; \
 		fi; \
@@ -4657,7 +4657,7 @@ fetch-list:
 			fi; \
 			for site in `eval $$SORTED_PATCH_SITES_CMD_TMP ${_RANDOMIZE_SITES}`; do \
 				CKSIZE=`alg=SIZE; ${DISTINFO_DATA}`; \
-				${ECHO_CMD} -n ${SETENV} ${FETCH_ENV} ${FETCH_CMD} ${FETCH_OFLAG} $${file} ${FETCH_BEFORE_ARGS} $${site}$${file} ${FETCH_AFTER_ARGS} '|| ' ; \
+				${ECHO_CMD} -n ${SETENV} ${FETCH_ENV} ${FETCH_CMD} ${FETCH_OFLAG} \"$${file}\" ${FETCH_BEFORE_ARGS} \"$${site}$${file}\" ${FETCH_AFTER_ARGS} '|| ' ; \
 			done; \
 			${ECHO_CMD} "${ECHO_CMD} $${file} not fetched" ; \
 		fi; \
