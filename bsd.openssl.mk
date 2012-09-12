@@ -1,8 +1,6 @@
-# makefile for use of:	OpenSSH
-# Date created:		31 May 2002
-# Whom:			dinoex
 #
 # $FreeBSD$
+# bsd.openssl.mk - Support for OpenSSL based ports.
 #
 # Use of 'USE_OPENSSL=yes' includes this Makefile after bsd.ports.pre.mk
 #
